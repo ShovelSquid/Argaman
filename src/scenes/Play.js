@@ -28,9 +28,24 @@ class Play extends Phaser.Scene {
 
     create() {
         console.log("ready to play");
+        // initialize background
         this.add.tileSprite(0, 0, game.config.width, game.config.height, 'background').setOrigin(0, 0).setScale(SCALE);
-        this.player = new Player(this, game.config.width/2, game.config.height/3, 
-        'player').setOrigin(0.5, 0.5);
+        // initialize player
+        this.player = new Player(this, game.config.width/2, game.config.height/3, 'player').setOrigin(0.5, 0.5);
+        // initialize groups
+        this.enemies = this.add.group();
+        this.playerSlashes = this.add.group();
+        this.enemySlashes = this.add.group();
+        // initialize collisions
+        this.physics.add.collider(this.enemies, this.player, () => {            // collision b/w enemies and player
+            console.log('collide');
+        });
+        this.physics.add.overlap(this.playerSlashes, this.enemies, () => {      // collision b/w player attacks & enemies
+            console.log('enemy in player slash');
+        });
+        this.physics.add.overlap(this.enemySlashes, this.player, () => {        // collision b/w enemy attacks & player
+            console.log('player hit by enemy');
+        });
     }
 
     update() {

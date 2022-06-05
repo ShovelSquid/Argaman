@@ -1,12 +1,10 @@
 class Player extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, texture, frame) {
         super(scene, x, y, texture, frame);
-
+        // add to scene
         scene.add.existing(this);
         scene.physics.add.existing(this);
-
         this.scale = SCALE;
-
         // Arcade Physics
         this.SPEED = 200;
         this.ACCELERATION = 3500;
@@ -124,18 +122,21 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         })
     }
 
-    createSlash(range = 50, magnitude = 0.5, length = 250, recharge = 500) {
+    createSlash(range = 50, magnitude = 0.5, length = 250, recharge = 150) {
         console.log('slash!');
-        this.canSlash = false;
-        this.slashing = true;
-        this.step(2.5, 225, 600);
-        this.setMaxVelocity(this.SPEED*magnitude);
-        let acceleration = this.body.acceleration;
-        let slash = this.scene.add.sprite(this.x + acceleration.x/range, this.y + acceleration.y/range, 
+        this.canSlash = false;                  // boolean for the
+        this.slashing = true;                   // woolean
+        this.step(2.5, 350, 600);               // make player move after
+        this.setMaxVelocity(this.SPEED*magnitude);          // set slower velocity
+        let acceleration = this.body.acceleration;          // shorthand
+        // add slash out a bit beyond sprite
+        let slash = this.scene.add.sprite(this.x + acceleration.x/range, this.y + acceleration.y/range,
         'slash').setOrigin(0.5, 0.5).setScale(SCALE);
+        this.scene.time.delayedCall(length, () => {
+            slash.destroy();                    // be prepared to end your most precious creations 
+        })
         this.scene.time.delayedCall(recharge, () => {
-            this.canSlash = true;
-            slash.destroy();
+            this.canSlash = true;               // they won't last that long
         });
     }
 }

@@ -24,36 +24,37 @@ class Menu extends Phaser.Scene {
         console.log("Argamannn");
         keySPACE = Phaser.Input.Keyboard;
         keyENTER = Phaser.Input.Keyboard.Key()
-        let textConfig = {
-            fontfamily: 'sansserif',
+        let textConfig = {                  // text config!
+            fontfamily: 'sansserif',        // not a font
             fontSize: '64px',
-            backgroundColor: '#000',
-            color: '#FFF',
+            backgroundColor: '#310',        // shortsized values??
+            color: '#FFF',                  // all white
             align: 'center',
-            padding: {
+            padding: {                      // yes sir lord paddington himself
                 top: 5,
                 bottom: 5,
             },
         };
-        this.add.text(this.game.config.width/2, this.game.config.height/5, 
+        // add menu text
+        this.add.text(this.game.config.width/2, this.game.config.height/5,          // game title
         'ARGAMAN', textConfig).setOrigin(0.5, 0.5);
         textConfig.fontSize = '28px';
-        this.add.text(this.game.config.width/2, this.game.config.height/3.5, 
+        this.add.text(this.game.config.width/2, this.game.config.height/3.5,        // game author
         'BY KAELEN COOK', textConfig).setOrigin(0.5, 1);
         textConfig.fontSize = '32px';
         textConfig.color = '#FAB';
-        this.add.text(this.game.config.width*0.4, this.game.config.height/2, 
+        this.add.text(this.game.config.width*0.4, this.game.config.height/2,        // game instructions
         'Enter SPACE to begin.', textConfig).setOrigin(1, 1);
 
-        this.input.keyboard.on('keydown-SPACE', () => {
+        this.input.keyboard.on('keydown-SPACE', () => {         // method for starting game
             this.startScene();
         });
-        this.input.keyboard.on('keydown-ENTER', () => {
+        this.input.keyboard.on('keydown-ENTER', () => {         // alternate method for start
             this.startScene();
         })
     }
 
     startScene() {
-        this.scene.start('playScene');
+        this.scene.start('playScene');          // extra function in case menu becomes elaborate
     }
 }
