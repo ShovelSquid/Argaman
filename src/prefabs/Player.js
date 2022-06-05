@@ -66,7 +66,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         }
         // F performs a quick slash attack
         if (Phaser.Input.Keyboard.JustDown(keyF) && this.canSlash) {
-            this.createSlash();
+            this.createSlash(this.width*3);
         }
         if (this.body.acceleration.x < 0) {
             this.setFlipX(true);
@@ -122,16 +122,26 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         })
     }
 
-    createSlash(range = 50, magnitude = 0.5, length = 250, recharge = 150) {
+    createSlash(range = this.width, magnitude = 0.5, length = 250, recharge = 150) {
         console.log('slash!');
         this.canSlash = false;                  // boolean for the
         this.slashing = true;                   // woolean
         this.step(2.5, 350, 600);               // make player move after
         this.setMaxVelocity(this.SPEED*magnitude);          // set slower velocity
-        let acceleration = this.body.acceleration;          // shorthand
+        let direction = {                                   // get -1, 1 vector2 direction
+            x: this.body.acceleration.x/this.ACCELERATION,  // not good for full 360 degree rotation
+            y: this.body.acceleration.y/this.ACCELERATION   // only works in full left right up down
+        };
+        console.log(direction);
+        console.log(this.angle);
+        
         // add slash out a bit beyond sprite
-        let slash = this.scene.add.sprite(this.x + acceleration.x/range, this.y + acceleration.y/range,
+        let slash = this.scene.add.sprite(this.x + direction.x*range, this.y + direction.y*range,
         'slash').setOrigin(0.5, 0.5).setScale(SCALE);
+        let angleBetween = Phaser.Math.Angle.Between(this.x, this.y, slash.x, slash.y);         // Get angle in radians
+        angleBetween *= 180/Math.PI;                        // convert angle to degrees
+        slash.angle = angleBetween;                         // apply to sprite rotation
+        console.log('angle: ', angleBetween);
         this.scene.time.delayedCall(length, () => {
             slash.destroy();                    // be prepared to end your most precious creations 
         })

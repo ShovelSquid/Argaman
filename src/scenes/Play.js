@@ -32,8 +32,10 @@ class Play extends Phaser.Scene {
         this.add.tileSprite(0, 0, game.config.width, game.config.height, 'background').setOrigin(0, 0).setScale(SCALE);
         // initialize player
         this.player = new Player(this, game.config.width/2, game.config.height/3, 'player').setOrigin(0.5, 0.5);
+        this.enemy = new Enemy(this, game.config.width*0.4, game.config.height/1.5, 'enemy').setOrigin(0.5, 0.5);
         // initialize groups
         this.enemies = this.add.group();
+        this.enemies.add(this.enemy);
         this.playerSlashes = this.add.group();
         this.enemySlashes = this.add.group();
         // initialize collisions
