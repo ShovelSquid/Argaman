@@ -8,7 +8,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.scale = SCALE;
 
         // Arcade Physics
-        this.SPEED = 150;
+        this.SPEED = 200;
         this.ACCELERATION = 3500;
         this.DRAG = this.ACCELERATION * 0.6;
         this.setMaxVelocity(this.SPEED);
@@ -16,26 +16,24 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         this.setDamping(false);
         // Booleans
         this.canDash = true;
+        this.canSlash = true;
         this.dashing = false;
+        this.slashing = false;
+        this.stepping = false;
 
         // Create function
         this.setCollideWorldBounds(true);
         // fast footstep burst
         this.footstep = this.scene.time.addEvent({
-            delay: 600,
+            delay: 165,
             callback: () => {
-                console.log("ieajrojr");
                 if (Math.abs(this.body.acceleration.x) == 0 && Math.abs(this.body.acceleration.y) == 0) {
                     console.log('pause');
                     this.footstep.paused = true;
+                    this.stepping = false;
                 }
-                else {
-                    console.log('keep');
-                    this.setMaxVelocity(this.SPEED*2);
-                    this.setVelocity(this.body.acceleration.x*2, this.body.acceleration.y*2);
-                    this.scene.time.delayedCall(350, () => {
-                        this.setMaxVelocity(this.SPEED);
-                    })
+                else if (this.canWalk()){
+                    this.step(1.9, 115);
                 }
             },
             loop: true,
@@ -46,15 +44,8 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         console.log("hello!");
     }
 
-    preload() {
-
-    }
-
-    create() {
-
-    }
-
     update() {
+        // key movement
         let currentAccel = [0, 0];
         if (keyW.isDown) {
             currentAccel[1] -= this.ACCELERATION;
@@ -73,31 +64,78 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         }
         // Space down performs a dash
         if (Phaser.Input.Keyboard.JustDown(keySPACE) && this.canDash) {
-            this.setMaxVelocity(this.SPEED*6);      // make player move faster
-            // reminder that acceleration returns a vector
-            this.setVelocity(this.body.acceleration.x, this.body.acceleration.y);
-            this.canDash = false;                   // boolean
-            this.dashing = true;                    // trooleans
-            this.footstep.paused = true;            // stop (or attempt to) the walking event 
-            this.scene.time.delayedCall(300, () => {
-                // let interpolation = Phaser.Math.Interpolation.Bezier([this.body.maxVelocity, this.SPEED], 0.5);
-                // console.log(interpolation);
-                this.setMaxVelocity(this.SPEED);
-                this.dashing = false;
-                this.footstep.paused = false;
-            })
-            this.scene.time.delayedCall(800, () => {
-                this.canDash = true;
-            })
+            this.dash(12, 160, 800);
+        }
+        // F performs a quick slash attack
+        if (Phaser.Input.Keyboard.JustDown(keyF) && this.canSlash) {
+            this.createSlash();
+        }
+        if (this.body.acceleration.x < 0) {
+            this.setFlipX(true);
+        }
+        else if (this.body.acceleration.x > 0) {
+            this.setFlipX(false);
         }
         this.setAcceleration(currentAccel[0], currentAccel[1]);
     }
     canWalk() {
+        // can only walk if +ve acceleration 
         if (Math.abs(this.body.acceleration.x) > 0 || Math.abs(this.body.acceleration.y) > 0) {
-            if (!this.dashing) {
-                return true;
+            if (this.dashing) {             // can't walk if dashing
+                return false;
             };
+            if (this.stepping) {            // can't walk mid-step
+                return false;
+            }
+            return true;                    // if not dashing or stepping and is moving, return true
         }
-        return false;
+        return false;                       // otherwise, return false
+    }
+
+    step(magnitude = 1.5, length = 250, recharge = 350) {
+        console.log('step');
+        this.stepping = true;                           // stepping boolean to tell if mid-step
+        this.setMaxVelocity(this.SPEED*magnitude);      // set walk speed to greater magnitude
+        this.setVelocity(this.body.acceleration.x*2, this.body.acceleration.y*2);
+        this.scene.time.delayedCall(length, () => {
+            this.setMaxVelocity(this.SPEED);            // return to normal speed
+            this.stepping = false;                      // finish mid-step
+            this.footstep.paused = false;               // set footstep rhythm back in place
+        });
+        this.footstep.delay = recharge;                 // alter overall footstep delay (if needed)
+    }
+
+    dash(magnitude = 12, length = 150, recharge = 600) {
+        this.setMaxVelocity(this.SPEED*magnitude);     // make player move faster
+        // reminder that acceleration returns a vector
+        this.setVelocity(this.body.acceleration.x, this.body.acceleration.y);
+        this.canDash = false;                   // boolean
+        this.dashing = true;                    // trooleans
+        this.footstep.paused = true;            // stop (or attempt to) the walking event 
+        this.scene.time.delayedCall(length, () => {
+            // let interpolation = Phaser.Math.Interpolation.Bezier([this.body.maxVelocity, this.SPEED], 0.5);
+            // console.log(interpolation);
+            this.setMaxVelocity(this.SPEED);    // return to base speed
+            this.dashing = false;               // no longer currently dashing
+            this.footstep.paused = false;       // turn walking back on
+        })
+        this.scene.time.delayedCall(recharge, () => {
+            this.canDash = true;                // able to dash again
+        })
+    }
+
+    createSlash(range = 50, magnitude = 0.5, length = 250, recharge = 500) {
+        console.log('slash!');
+        this.canSlash = false;
+        this.slashing = true;
+        this.step(2.5, 225, 600);
+        this.setMaxVelocity(this.SPEED*magnitude);
+        let acceleration = this.body.acceleration;
+        let slash = this.scene.add.sprite(this.x + acceleration.x/range, this.y + acceleration.y/range, 
+        'slash').setOrigin(0.5, 0.5).setScale(SCALE);
+        this.scene.time.delayedCall(recharge, () => {
+            this.canSlash = true;
+            slash.destroy();
+        });
     }
 }

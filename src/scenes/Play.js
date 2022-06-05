@@ -5,9 +5,11 @@ class Play extends Phaser.Scene {
 
     preload() {
         this.load.path = './assets/';
-
+        // preload sprites
         this.load.image('background', 'background.png');
         this.load.image('player', 'Player.png');
+        this.load.image('enemy', 'Central.png');
+        this.load.image('slash', 'Slash.png');
         // Load keys
         keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
         keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
