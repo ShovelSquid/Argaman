@@ -7,7 +7,6 @@ A game about exploring.
 
 */
 
-
 let SCALE = 1;
 
 let config = {
@@ -31,3 +30,9 @@ let config = {
 };
 
 let game = new Phaser.Game(config);
+
+
+// Reserve Keys
+let keyW, keyA, keyS, keyD;
+let keyF, keyG;
+let keySPACE, keyLSHIFT, keyENTER;
