@@ -42,7 +42,8 @@ class Play extends Phaser.Scene {
         this.physics.add.collider(this.enemies, this.player, () => {            // collision b/w enemies and player
             console.log('collide');
         });
-        this.physics.add.overlap(this.playerSlashes, this.enemies, () => {      // collision b/w player attacks & enemies
+        this.physics.add.overlap(this.playerSlashes, this.enemies, (slash, enemy) => {      // collision b/w player attacks & enemies
+            this.enemy.hit(this.player.damage.base);
             console.log('enemy in player slash');
         });
         this.physics.add.overlap(this.enemySlashes, this.player, () => {        // collision b/w enemy attacks & player
@@ -52,5 +53,8 @@ class Play extends Phaser.Scene {
 
     update() {
         this.player.update();
+        this.enemies.getChildren().forEach((enemy) => {
+            enemy.update();
+        })
     }
 }

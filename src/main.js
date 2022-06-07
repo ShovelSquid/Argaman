@@ -7,7 +7,7 @@ A game about exploring.
 
 */
 
-let SCALE = 6;
+let SCALE = 4;
 
 let config = {
     type: Phaser.AUTO,

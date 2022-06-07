@@ -6,12 +6,23 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         scene.physics.add.existing(this);
         this.scale = SCALE;
         // Arcade Physics
-        this.SPEED = 200;
+        this.SPEED = 250;
         this.ACCELERATION = 3500;
-        this.DRAG = this.ACCELERATION * 0.6;
+        this.DRAG = this.ACCELERATION * 0.2;
         this.setMaxVelocity(this.SPEED);
         this.setDrag(this.DRAG);
         this.setDamping(false);
+        // Variables
+        this.health = {
+            max: 100,
+            current: 100,
+            life: 1,                // 1 for if +ve vitality or -1 for undead
+        };
+        this.damage = {
+            base: 10,               // base damage amount
+            type: 'miasma',         // type: Miasma;
+            over: 0,                // instantaneously
+        };
         // Booleans
         this.canDash = true;
         this.canSlash = true;
@@ -31,14 +42,13 @@ class Player extends Phaser.Physics.Arcade.Sprite {
                     this.stepping = false;
                 }
                 else if (this.canWalk()){
-                    this.step(1.9, 115);
+                    this.step(1.4, 115);
                 }
             },
             loop: true,
             paused: true,
             startAt: 250,
         });
-        console.log(this.footstep);
         console.log("hello!");
     }
 
@@ -66,7 +76,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         }
         // F performs a quick slash attack
         if (Phaser.Input.Keyboard.JustDown(keyF) && this.canSlash) {
-            this.createSlash(this.width*3);
+            this.createSlash(this.width*4.5);
         }
         if (this.body.acceleration.x < 0) {
             this.setFlipX(true);
@@ -136,8 +146,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         console.log(this.angle);
         
         // add slash out a bit beyond sprite
-        let slash = this.scene.add.sprite(this.x + direction.x*range, this.y + direction.y*range,
-        'slash').setOrigin(0.5, 0.5).setScale(SCALE);
+        let slash = this.scene.add.sprite(this.x + direction.x*(range), this.y + direction.y*(range), 
+        'slash').setOrigin(0.5, 0.5).setScale(SCALE, SCALE*2);
+        this.scene.playerSlashes.add(slash);
         let angleBetween = Phaser.Math.Angle.Between(this.x, this.y, slash.x, slash.y);         // Get angle in radians
         angleBetween *= 180/Math.PI;                        // convert angle to degrees
         slash.angle = angleBetween;                         // apply to sprite rotation
