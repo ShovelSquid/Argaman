@@ -8,14 +8,14 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         // Arcade Physics
         this.SPEED = 500;
         this.ACCELERATION = 3500;
-        this.DRAG = this.ACCELERATION * 0.6;
+        this.DRAG = this.ACCELERATION * 1.2;
         this.setMaxVelocity(this.SPEED);
         this.setDrag(this.DRAG);
         this.setDamping(false);
         // Variables
         this.health = {
-            max: 100,
-            current: 100,
+            max: 30,
+            current: 30,
             life: 1,                // 1 for if +ve vitality or -1 for undead
         };
         this.damage = {
@@ -35,6 +35,8 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         // Create function
         this.setCollideWorldBounds(true);
         console.log("hello!");
+
+        this.setAcceleration(500, 100);
     }
     update() {
 
@@ -62,10 +64,10 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     hitChunk(duration = 150) {
         console.log('hit chunk!');
         this.setTintFill(0xffffff);
-        this.scene.physics.enable = false;
+        this.body.enable = false;
         this.scene.time.delayedCall(duration, () => {
             this.clearTint();
-            this.scene.physics.enable = true;
+            this.body.enable = true;
         })
     }
 }
