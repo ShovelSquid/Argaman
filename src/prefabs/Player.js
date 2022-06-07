@@ -8,7 +8,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         // Arcade Physics
         this.SPEED = 250;
         this.ACCELERATION = 3500;
-        this.DRAG = this.ACCELERATION * 0.2;
+        this.DRAG = this.ACCELERATION * 0.4;
         this.setMaxVelocity(this.SPEED);
         this.setDrag(this.DRAG);
         this.setDamping(false);
@@ -76,7 +76,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         }
         // F performs a quick slash attack
         if (Phaser.Input.Keyboard.JustDown(keyF) && this.canSlash) {
-            this.createSlash(this.width*4.5);
+            this.createSlash(this.width*4.5, 2.5);
         }
         if (this.body.acceleration.x < 0) {
             this.setFlipX(true);
@@ -104,7 +104,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         console.log('step');
         this.stepping = true;                           // stepping boolean to tell if mid-step
         this.setMaxVelocity(this.SPEED*magnitude);      // set walk speed to greater magnitude
-        this.setVelocity(this.body.acceleration.x*2, this.body.acceleration.y*2);
+        this.setVelocity(this.body.acceleration.x*magnitude, this.body.acceleration.y*magnitude);
         this.scene.time.delayedCall(length, () => {
             this.setMaxVelocity(this.SPEED);            // return to normal speed
             this.stepping = false;                      // finish mid-step
@@ -133,28 +133,31 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     createSlash(range = this.width, magnitude = 0.5, length = 250, recharge = 150) {
-        console.log('slash!');
         this.canSlash = false;                  // boolean for the
         this.slashing = true;                   // woolean
-        this.step(2.5, 350, 600);               // make player move after
-        this.setMaxVelocity(this.SPEED*magnitude);          // set slower velocity
+        this.step(magnitude, 100, 600);               // make player move after
+        
         let direction = {                                   // get -1, 1 vector2 direction
             x: this.body.acceleration.x/this.ACCELERATION,  // not good for full 360 degree rotation
             y: this.body.acceleration.y/this.ACCELERATION   // only works in full left right up down
         };
-        console.log(direction);
-        console.log(this.angle);
         
         // add slash out a bit beyond sprite
         let slash = this.scene.add.sprite(this.x + direction.x*(range), this.y + direction.y*(range), 
-        'slash').setOrigin(0.5, 0.5).setScale(SCALE, SCALE*2);
-        this.scene.playerSlashes.add(slash);
+        'slash').setOrigin(0.5, 0.5).setScale(SCALE, SCALE);
+        this.scene.physics.add.existing(slash);
+        // slash.body.startFollow(this);
+
+        // add collision between enemies to scene
+        this.scene.physics.add.overlap(this.scene.enemies, slash, (enemy) => {
+            enemy.hit(this.damage.base);
+            slash.body.enable = false;
+        });
         let angleBetween = Phaser.Math.Angle.Between(this.x, this.y, slash.x, slash.y);         // Get angle in radians
         angleBetween *= 180/Math.PI;                        // convert angle to degrees
         slash.angle = angleBetween;                         // apply to sprite rotation
-        console.log('angle: ', angleBetween);
         this.scene.time.delayedCall(length, () => {
-            slash.destroy();                    // be prepared to end your most precious creations 
+            slash.destroy();                    // be prepared to end your most precious creations
         })
         this.scene.time.delayedCall(recharge, () => {
             this.canSlash = true;               // they won't last that long
