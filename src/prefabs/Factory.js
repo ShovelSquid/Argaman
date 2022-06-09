@@ -18,7 +18,6 @@ class Factory extends Phaser.Physics.Arcade.Sprite {
         this.spawnTimer = this.scene.time.addEvent({
             delay: 2000,
             callback: () => {
-                console.log("callback");
                 this.addEnemy();
             },
             loop: true,
@@ -37,14 +36,12 @@ class Factory extends Phaser.Physics.Arcade.Sprite {
         this.scene.enemies.add(enemy);
     }
     hit(damage) {
-        console.log(' hit for ', damage, ' damage!');
         this.health.current -= damage;                  // take damage
         // if health < 0, die
         if (this.health.current * this.health.life <= 0) {
             this.die();
         }
         else {
-            console.log('HP: ', this.health.current, '/', this.health.max);
             this.hitChunk();                                // show damage effects    
         }
     }
@@ -55,7 +52,6 @@ class Factory extends Phaser.Physics.Arcade.Sprite {
     }
 
     hitChunk(duration = 150) {
-        console.log('hit chunk!');
         this.setTintFill(0xffffff);
         this.scene.time.delayedCall(duration, () => {
             this.clearTint();

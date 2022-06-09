@@ -8,7 +8,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         // Arcade Physics
         this.SPEED = 500;
         this.ACCELERATION = 3500;
-        this.DRAG = this.ACCELERATION * 1.2;
+        this.DRAG = this.ACCELERATION * 0.8;
         this.setMaxVelocity(this.SPEED);
         this.setDrag(this.DRAG);
         this.setDamping(false);
@@ -43,31 +43,38 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     hit(damage) {
-        console.log(' hit for ', damage, ' damage!');
         this.health.current -= damage;                  // take damage
         // if health < 0, die
         if (this.health.current * this.health.life <= 0) {
+            this.scene.time.removeEvent(this.accelCall);
             this.die();
         }
         else {
-            console.log('HP: ', this.health.current, '/', this.health.max);
-            this.hitChunk();                                // show damage effects
-            this.setVelocity(-this.SPEED, -this.SPEED);     // move backward
-    
+            this.hitChunk(150);                             // show damage effects
+            this.setVelocity(-this.SPEED, 0);               // move backward
+            this.setAcceleration(0, 0);
+            this.scene.time.removeEvent(this.accelCall);
+            this.accelCall = this.scene.time.addEvent({
+                delay: 500,
+                callback: () => {
+                    this.setAcceleration(this.ACCELERATION, 0);
+                }
+            })
         }
     }
 
     die() {
+        this.scene.time.removeEvent(this.clearCall, this.accelCall);
+        console.log("death call");
         this.destroy();
     }
 
     hitChunk(duration = 150) {
-        console.log('hit chunk!');
         this.setTintFill(0xffffff);
-        this.body.enable = false;
-        this.scene.time.delayedCall(duration, () => {
+        this.body.immovable = true;
+        this.clearCall = this.scene.time.delayedCall(duration, () => {
             this.clearTint();
-            this.body.enable = true;
+            this.body.immovable = false;
         })
     }
 }

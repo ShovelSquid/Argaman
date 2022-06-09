@@ -19,7 +19,7 @@ let config = {
         arcade: {
             useTree: true,
             gravity: {y: 0},
-            debug: true,
+            debug: false,
         }
     },
     scene: [Menu, Play],
